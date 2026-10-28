@@ -429,7 +429,7 @@ elif screen == 8:
     if bdi_val < 14:
         st.success("🟢 **Resultado de la evaluación: Riesgo bajo**\n\nNo se identifican indicios significativos de depresión en este momento.")
     else:
-        st.warning("🟠 **Resultado de la evaluación: Riesgo moderado / elevado**\n\nSe identifican indicadores que sugieren la presencia de malestar emocional.")
+        st.success("🔵 **Resultado de la evaluación: Riesgo moderado / elevado**\n\nSe identifican indicadores que sugieren la presencia de malestar emocional.")
         
     st.markdown("### Recomendaciones generales (basadas en mhGAP)")
     st.markdown("""
@@ -446,7 +446,7 @@ elif screen == 8:
 # PANTALLA 9: PROTOCOLO DE DERIVACIÓN (DEPRESIÓN SEVERA)
 # ------------------------------------------
 elif screen == 9:
-    st.error("⚠️ **Protocolo de derivación (síntomas graves de depresión)**")
+    st.write("**Protocolo de derivación (síntomas graves de depresión)**")
     st.write("Está es una herramienta computacional y no constituye un diagnóstico o valoración psicológica ni psiquiátrica formal, no pretende sustituir el criterio clínico formal")
     nombre_usuario= st.session_state.data.get('nombre', 'participante')
     st.markdown(f"""
@@ -471,7 +471,7 @@ elif screen == 9:
 # PANTALLA 10: PROTOCOLO DE DERIVACIÓN (RIESGO SUICIDA)
 # ------------------------------------------
 elif screen == 10:
-    st.error("🚨 **Protocolo de derivación (riesgo de suicidio)**")
+    st.write("**Protocolo de derivación (riesgo de suicidio)**")
     nombre_usuario= st.session_state.data.get('nombre', 'participante')
     st.markdown(f"""
     **{nombre_usuario} si tienes pensamientos de hacerte daño o de quitarte la vida, por favor busca ayuda inmediata. No estás solo.**
