@@ -133,7 +133,8 @@ with st.sidebar:
 col_top1, col_top2 = st.columns([10, 2])
 with col_top2:
     if st.button("Salir", use_container_width=True):
-        st.warning("⚠️ ¿Está seguro que desea salir? Si sale, la información ingresada no se guardará.")
+        nombre_usuario= st.session_state.data.get('nombre', 'participante')
+        st.warning(f"⚠️ ¿Está seguro que desea salir? {nombre_usuario} si continuas, la información ingresada no se guardará.")
         if st.button("Sí, salir y reiniciar"):
             st.session_state.clear()
             st.rerun()
@@ -301,33 +302,47 @@ elif screen == 6:
     bdi_preguntas = [
         ("1. Tristeza", ["No me siento triste", "Me siento triste gran parte del tiempo", "Me siento triste todo el tiempo", "Estoy tan infeliz o triste que no puedo soportarlo"]),
         ("2. Pesimismo", ["No estoy desanimado respecto al futuro", "Siento que tengo más desánimo respecto al futuro que antes", "No espero que las cosas funcionen para mí", "Siento que el futuro es desesperanzador y que solo empeorará"]),
-        ("3. Fracaso", [" No me siento como un fracasado", " He fracasado más de lo que debiera", " Cuando miro atrás, veo muchos fracasos", "Siento que soy un fracasado total como persona"]),
-        ("4. Pérdida de Placer", [" Obtengo tanto placer como siempre por las cosas de las que disfruto", " No disfruto tanto de las cosas como solía hacerlo", "Obtengo muy poco placer de las cosas que solía disfrutar", "  No puedo obtener ningún placer de las cosas de las que solía disfrutar"]),
-        ("5. Sentimientos de Culpa", [" No me siento particularmente culpable", " Me siento culpable respecto de varias cosas que he hecho o que debería haber hecho", "Me siento bastante culpable la mayor parte del tiempo.", "Me siento culpable todo el tiempo."]),
-        ("13. Indecisión", [" Tomo mis propias decisiones tan bien como siempre", " Me resulta más difícil que de costumbre tomar decisiones", " Encuentro mucha más dificultad que antes para tomar decisiones", "Tengo problemas para tomar cualquier decisión"]),
-        ("14. Desvalorización", [" No siento que yo no sea valioso", "  No me considero a mi mismo tan valioso y útil como solía considerarme", " Me siento menos valioso cuando me comparo con otros", "  Siento que no valgo nada"]),
-        ("15. Pérdida de Energía", [" Tengo tanta energía como siempre", "  Tengo menos energía que la que solía tener", " No tengo suficiente energía para hacer demasiado", "No tengo energía suficiente para hacer nada"]),
-        ("16. Cambios en los Hábitos de Sueño", [" No he experimentado ningún cambio en mis hábitos de sueño", "Duermo un poco más que lo habitual", "Duermo un poco menos que lo habitual", "Duermo mucho más que lo habitual", "Duermo mucho menos que lo habitual", "Duermo la mayor parte del día", "Me despierto 1-2 horas más temprano y no puedo volver a dormirme"]),
-        ("17. Irritabilidad", [" No estoy tan irritable que lo habitual", "  Estoy más irritable que lo habitual", " Estoy mucho más irritable que lo habitual", "  Estoy irritable todo el tiempo"]),
-        ("18. Cambios en el Apetito", [" No he experimentado ningún cambio en mi apetito", "Mi apetito es un poco menor que lo habitual", "Mi apetito es un poco mayor que lo habitual", "Mi apetito es mucho menor que antes", "Mi apetito es mucho mayor que lo habitual", "No tengo apetito en absoluto", "Quiero comer todo el día"]),
-        ("19. Dificultad de Concentración", [" Puedo concentrarme tan bien como siempre", "  No puedo concentrarme tan bien como habitualmente", " Me es difícil mantener la mente en algo por mucho tiempo", "  Encuentro que no puedo concentrarme en nada"]),
-        ("20. Cansancio o Fatiga", [" No estoy más cansado o fatigado que lo habitual", "  Me fatigo o me canso más fácilmente que lo habitual", " Estoy demasiado fatigado o cansado para hacer muchas de las cosas que solía hacer", "  Estoy demasiado fatigado o cansado para hacer la mayoría de las cosas que solía hacer"]),
-        ("21. Pérdida de Interés en el Sexo", [" No he notado ningún cambio reciente en mi interés por el sexo", "1. Estoy menos interesado en el sexo de lo que solía estarlo", " Estoy mucho menos interesado en el sexo", "  He perdido completamente el interés en el sexo"])
-        ]
+        ("3. Fracaso", ["No me siento como un fracasado", "He fracasado más de lo que debiera", "Cuando miro atrás, veo muchos fracasos", "Siento que soy un fracasado total como persona"]),
+        ("4. Pérdida de Placer", ["Obtengo tanto placer como siempre por las cosas de las que disfruto", "No disfruto tanto de las cosas como solía hacerlo", "Obtengo muy poco placer de las cosas que solía disfrutar", "No puedo obtener ningún placer de las cosas de las que solía disfrutar"]),
+        ("5. Sentimientos de Culpa", ["No me siento particularmente culpable", "Me siento culpable respecto de varias cosas que he hecho o que debería haber hecho", "Me siento bastante culpable la mayor parte del tiempo", "Me siento culpable todo el tiempo"]),
+        ("6. Sentimientos de Castigo", ["No siento que esté siendo castigado", "Siento que tal vez pueda ser castigado", "Espero ser castigado", "Siento que estoy siendo castigado"]),
+        ("7. Disconformidad con uno mismo", ["Siento acerca de mí lo mismo que siempre", "He perdido la confianza en mí mismo", "Estoy decepcionado conmigo mismo", "No me gusto a mí mismo"]),
+        ("8. Autocrítica", ["No me critico ni me culpo más de lo habitual", "Estoy más crítico conmigo mismo de lo que solía estarlo", "Me critico a mí mismo por todos mis errores", "Me culpo a mí mismo por todo lo malo que sucede"]),
+        ("9. Pensamientos o Deseos Suicidas", ["No tengo ningún pensamiento de matarme", "He tenido pensamientos de matarme, pero no lo haría", "Querría matarme", "Me mataría si tuviera la oportunidad de hacerlo"]),
+        ("10. Llanto", ["No lloro más de lo que solía hacerlo", "Lloro más de lo que solía hacerlo", "Lloro por cualquier pequeñez", "Siento ganas de llorar pero no puedo"]),
+        ("11. Agitación", ["No estoy más inquieto o tenso que lo habitual", "Me siento más inquieto o tenso que lo habitual", "Estoy tan inquieto o agitado que me es difícil quedarme quieto", "Estoy tan inquieto o agitado que tengo que estar siempre en movimiento o haciendo algo"]),
+        ("12. Pérdida de Interés", ["No he perdido el interés en otras actividades o personas", "Estoy menos interesado que antes en otras personas o cosas", "He perdido casi todo el interés en otras personas o cosas", "Me es difícil interesarme por algo"]),
+        ("13. Indecisión", ["Tomo mis propias decisiones tan bien como siempre", "Me resulta más difícil que de costumbre tomar decisiones", "Encuentro mucha más dificultad que antes para tomar decisiones", "Tengo problemas para tomar cualquier decisión"]),
+        ("14. Desvalorización", ["No siento que yo no sea valioso", "No me considero a mí mismo tan valioso y útil como solía considerarme", "Me siento menos valioso cuando me comparo con otros", "Siento que no valgo nada"]),
+        ("15. Pérdida de Energía", ["Tengo tanta energía como siempre", "Tengo menos energía que la que solía tener", "No tengo suficiente energía para hacer demasiado", "No tengo energía suficiente para hacer nada"]),
+        ("16. Cambios en los Hábitos de Sueño", ["No he experimentado ningún cambio en mis hábitos de sueño", "Duermo un poco más que lo habitual", "Duermo un poco menos que lo habitual", "Duermo mucho más que lo habitual", "Duermo mucho menos que lo habitual", "Duermo la mayor parte del día", "Me despierto 1-2 horas más temprano y no puedo volver a dormirme"]),
+        ("17. Irritabilidad", ["No estoy tan irritable que lo habitual", "Estoy más irritable que lo habitual", "Estoy mucho más irritable que lo habitual", "Estoy irritable todo el tiempo"]),
+        ("18. Cambios en el Apetito", ["No he experimentado ningún cambio en mi apetito", "Mi apetito es un poco menor que lo habitual", "Mi apetito es un poco mayor que lo habitual", "Mi apetito es mucho menor que antes", "Mi apetito es mucho mayor que lo habitual", "No tengo apetito en absoluto", "Quiero comer todo el día"]),
+        ("19. Dificultad de Concentración", ["Puedo concentrarme tan bien como siempre", "No puedo concentrarme tan bien como habitualmente", "Me es difícil mantener la mente en algo por mucho tiempo", "Encuentro que no puedo concentrarme en nada"]),
+        ("20. Cansancio o Fatiga", ["No estoy más cansado o fatigado que lo habitual", "Me fatigo o me canso más fácilmente que lo habitual", "Estoy demasiado fatigado o cansado para hacer muchas de las cosas que solía hacer", "Estoy demasiado fatigado o cansado para hacer la mayoría de las cosas que solía hacer"]),
+        ("21. Pérdida de Interés en el Sexo", ["No he notado ningún cambio reciente en mi interés por el sexo", "Estoy menos interesado en el sexo de lo que solía estarlo", "Estoy mucho menos interesado en el sexo", "He perdido completamente el interés en el sexo"])
+    ]
     
     bdi_respuestas = {}
     for i, (titulo, opciones) in enumerate(bdi_preguntas):
         st.write(f"**{titulo}**")
-        val = st.radio(f"Selec_{i}", opciones, key=f"bdi_{i}", label_visibility="collapsed")
-        # CAMBIO CLAVE: Usar index() en lugar de recortar texto con int(val[0])
-        bdi_respuestas[i] = opciones.index(val)
+        val = st.radio(f"Selec_{i}", options=opciones, key=f"bdi_{i}", label_visibility="collapsed", index=None)
+        
+        if val is not None:
+            bdi_respuestas[i] = opciones.index(val)
         
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
         if st.button("Continuar", use_container_width=True):
-            st.session_state.data['bdi_puntaje'] = sum(bdi_respuestas.values())
-            st.session_state.screen = 7
-            st.rerun()
+            # Validamos si la cantidad de respuestas guardadas es menor al total de preguntas
+            if len(bdi_respuestas) < len(bdi_preguntas):
+                nombre_usuario = st.session_state.data.get('nombre', 'participante')
+                st.error(f"Lo siento {nombre_usuario}, parece que dejaste algunas preguntas sin responder, por favor completa el formulario.")
+            else:
+                # Si todas están respondidas, sumamos y avanzamos a la pantalla 7
+                st.session_state.data['bdi_puntaje'] = sum(bdi_respuestas.values())
+                st.session_state.screen = 7
+                st.rerun()
 
 # ------------------------------------------
 # PANTALLA 7: RIESGO DE SUICIDIO (ASQ)
@@ -358,7 +373,6 @@ elif screen == 7:
                 try:
                     # Intento de inserción en participantes_estudio
                     res_part = supabase.table("participantes_estudio").insert({
-                        "nombre_o_seudonimo": st.session_state.data['nombre'],
                         "edad": st.session_state.data['edad'],
                         "sexo": st.session_state.data['sexo'],
                         "escolaridad": st.session_state.data['escolaridad'],
@@ -405,7 +419,8 @@ elif screen == 7:
 # ------------------------------------------
 elif screen == 8:
     st.subheader("Tus resultados")
-    
+    nombre_usuario= st.session_state.data.get('nombre', 'participante')
+    st.write(f"Gracias por participar en este programa de prueba. {nombre_usuario}, recuerda que los resultados que aparecen a continuación no reflejan el resultado de una evaluación psicológica formal, recuerda acudir con un profesional si lo consideras necesario")
     # MOSTRAR PUNTAJES
     bdi_val = st.session_state.data.get('bdi_puntaje', 0)
     asq_val = st.session_state.data.get('asq_puntaje', 0)
@@ -433,8 +448,9 @@ elif screen == 8:
 elif screen == 9:
     st.error("⚠️ **Protocolo de derivación (síntomas graves de depresión)**")
     st.write("Está es una herramienta computacional y no constituye un diagnóstico o valoración psicológica ni psiquiátrica formal, no pretende sustituir el criterio clínico formal")
-    st.markdown("""
-    Tu bienestar es lo más importante. A continuación, te proporcionamos teléfonos donde se te puede proporcionar atención personal, confidencial y profesional:  
+    nombre_usuario= st.session_state.data.get('nombre', 'participante')
+    st.markdown(f"""
+    {nombre_usuario} tu bienestar es lo más importante. A continuación, te proporcionamos teléfonos donde se te puede proporcionar atención personal, confidencial y profesional:  
     * Línea de emergencias: Llamar al **911** con servicio las 24 horas. 
 	* LOCATEL: Marca al *0311 o al **55 5658 1111** servicio 24 horas.
 	* Línea de la Vida: **800 911 2000**. Atención gratuita y confidencial en salud mental, disponible las 24 horas, todos los días. 
@@ -456,8 +472,9 @@ elif screen == 9:
 # ------------------------------------------
 elif screen == 10:
     st.error("🚨 **Protocolo de derivación (riesgo de suicidio)**")
-    st.markdown("""
-    **Si tienes pensamientos de hacerte daño o de quitarte la vida, por favor busca ayuda inmediata. No estás solo.**
+    nombre_usuario= st.session_state.data.get('nombre', 'participante')
+    st.markdown(f"""
+    **{nombre_usuario} si tienes pensamientos de hacerte daño o de quitarte la vida, por favor busca ayuda inmediata. No estás solo.**
     * Línea de emergencias: Llamar al **911** con servicio las 24 horas. 
     * LOCATEL: Marca al *0311 o al **55 5658 1111** servicio 24 horas.
     * Línea de la Vida: **800 911 2000**. Atención gratuita y confidencial en salud mental, disponible las 24 horas, todos los días. 
