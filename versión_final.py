@@ -291,13 +291,12 @@ elif screen == 5:
         if st.button("Continuar", use_container_width=True):
             st.session_state.screen = 6
             st.rerun()
-
 # ------------------------------------------
 # PANTALLA 6: BDI-II
 # ------------------------------------------
 elif screen == 6:
     st.subheader("Inventario de Depresión de Beck (BDI)")
-    st.write("Instrucciones: Este cuestionario consta de 21 grupos de afirmaciones. Por favor, lea con atención cada uno de ellos cuidadosamente. Luego elija uno de cada grupo, el que mejor describa el modo como se ha sentido las últimas dos semanas, incluyendo el día de hoy.Marque con un círculo el número correspondiente al enunciado elegido Si varios enunciados de un mismo grupo le parecen igualmente apropiados, marque el número más alto. Verifique que no haya elegido más de uno por grupo, incluyendo el ítem 16 (cambios en los hábitos de Sueño) y el ítem 18 (cambios en el apetito),")
+    st.write("Instrucciones: Este cuestionario consta de 21 grupos de afirmaciones. Por favor, lea con atención cada uno de ellos cuidadosamente. Luego elija uno de cada grupo, el que mejor describa el modo como se ha sentido las últimas dos semanas, incluyendo el día de hoy.")
     
     bdi_preguntas = [
         ("1. Tristeza", ["No me siento triste", "Me siento triste gran parte del tiempo", "Me siento triste todo el tiempo", "Estoy tan infeliz o triste que no puedo soportarlo"]),
@@ -323,27 +322,46 @@ elif screen == 6:
         ("21. Pérdida de Interés en el Sexo", ["No he notado ningún cambio reciente en mi interés por el sexo", "Estoy menos interesado en el sexo de lo que solía estarlo", "Estoy mucho menos interesado en el sexo", "He perdido completamente el interés en el sexo"])
     ]
     
-    bdi_respuestas = {}
+    bdi_respuestas_puntajes = {}
+    bdi_respuestas_raw = {}
+    
     for i, (titulo, opciones) in enumerate(bdi_preguntas):
         st.write(f"**{titulo}**")
         val = st.radio(f"Selec_{i}", options=opciones, key=f"bdi_{i}", label_visibility="collapsed", index=None)
         
         if val is not None:
-            bdi_respuestas[i] = opciones.index(val)
+            idx = opciones.index(val)
+            # Guardamos el índice exacto marcado (numeral de respuesta para 16 y 18 y el resto) para futuras consultas
+            bdi_respuestas_raw[i] = idx
+            
+            # Lógica de puntaje estándar BDI (0 a 3) para los ítems de 7 opciones (16 y 18)
+            if i in [15, 17]:
+                if idx == 0:
+                    score = 0
+                elif idx in [1, 2]:
+                    score = 1
+                elif idx in [3, 4]:
+                    score = 2
+                elif idx in [5, 6]:
+                    score = 3
+                else:
+                    score = idx
+            else:
+                score = idx
+            bdi_respuestas_puntajes[i] = score
         
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
         if st.button("Continuar", use_container_width=True):
-            # Validamos si la cantidad de respuestas guardadas es menor al total de preguntas
-            if len(bdi_respuestas) < len(bdi_preguntas):
+            if len(bdi_respuestas_puntajes) < len(bdi_preguntas):
                 nombre_usuario = st.session_state.data.get('nombre', 'participante')
                 st.error(f"Lo siento {nombre_usuario}, parece que dejaste algunas preguntas sin responder, por favor completa el formulario.")
             else:
-                # Si todas están respondidas, sumamos y avanzamos a la pantalla 7
-                st.session_state.data['bdi_puntaje'] = sum(bdi_respuestas.values())
+                st.session_state.data['bdi_puntaje'] = sum(bdi_respuestas_puntajes.values())
+                # Guardamos el diccionario raw con los índices exactos para pasarlo a la Pantalla 7 y guardarlo en Supabase
+                st.session_state.data['bdi_respuestas_raw'] = bdi_respuestas_raw
                 st.session_state.screen = 7
                 st.rerun()
-
 # ------------------------------------------
 # PANTALLA 7: RIESGO DE SUICIDIO (ASQ)
 # ------------------------------------------
@@ -351,69 +369,101 @@ elif screen == 7:
     st.markdown("> ℹ️ La siguiente escala no se utiliza directamente en el modelo de predicción, pero es muy importante para identificar posibles riesgos de suicidio.")
     st.subheader("Escala de Ideación Suicida de Columbia (C-SSRS / ASQ)")
     
-    asq_1 = st.radio("1. ¿Has tenido pensamientos de que estarías mejor muerto/a o de hacerte daño?", ["Sí", "No"], key="asq_1")
-    asq_2 = st.radio("2. ¿Has tenido pensamientos de hacerte daño?", ["Sí", "No"], key="asq_2")
-    asq_3 = st.radio("3. ¿Has pensado acerca de cómo podrías hacerte daño?", ["Sí", "No"], key="asq_3")
-    asq_4 = st.radio("4. ¿Has tenido algún plan de hacerte daño?", ["Sí", "No"], key="asq_4")
+    asq_1_val = st.radio("1. ¿Has tenido pensamientos de que estarías mejor muerto/a o de hacerte daño?", ["No", "Sí"], key="asq_1", index=None)
+    asq_2_val = st.radio("2. ¿Has tenido deseos de hacerte daño?", ["No", "Sí"], key="asq_2", index=None)
+    asq_3_val = st.radio("3. ¿Has pensado acerca de cómo podrías hacerte daño?", ["No", "Sí"], key="asq_3", index=None)
+    asq_4_val = st.radio("4. ¿Has tenido algún plan de hacerte daño?", ["No", "Sí"], key="asq_4", index=None)
     
-    tiene_riesgo = (asq_1 == "Sí" or asq_2 == "Sí" or asq_3 == "Sí" or asq_4 == "Sí")
-    
+    # La pregunta 5 se despliega si alguna de las 4 primeras es "Sí"
+    asq_5_val = None
+    if asq_1_val == "Sí" or asq_2_val == "Sí" or asq_3_val == "Sí" or asq_4_val == "Sí":
+        st.warning("⚠️ Has indicado respuesta afirmativa en preguntas previas. Por favor responde la siguiente pregunta de evaluación complementaria.")
+        asq_5_val = st.radio("5. ¿Has intentado hacerte daño alguna vez en tu vida?", ["No", "Sí"], key="asq_5", index=None)
+
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
         if st.button("Continuar", use_container_width=True):
-            st.session_state.data['asq_puntaje'] = 1 if tiene_riesgo else 0
-            
-            # Asignación de probabilidades base
-            st.session_state.data['p_bayes'] = 0.35 if st.session_state.data['antecedente'] == "con-diagnostico" else 0.15
-            st.session_state.data['p_texto'] = 0.0  
-            st.session_state.data['p_combinada'] = st.session_state.data['p_bayes']
-            
-            # INSERCIÓN EN SUPABASE (Ocurre siempre al finalizar las pruebas)
-            if supabase:
-                try:
-                    # Intento de inserción en participantes_estudio
-                    res_part = supabase.table("participantes_estudio").insert({
-                        "edad": st.session_state.data['edad'],
-                        "sexo": st.session_state.data['sexo'],
-                        "escolaridad": st.session_state.data['escolaridad'],
-                        "orientacion": st.session_state.data['orientacion'],
-                        "antecedente": st.session_state.data['antecedente'],
-                        "respuesta_abierta": st.session_state.data['pregunta_abierta'],
-                        "bdi_puntaje": st.session_state.data['bdi_puntaje'],
-                        "asq_puntaje": st.session_state.data['asq_puntaje'],
-                        "p_bayes": st.session_state.data['p_bayes'],
-                        "p_texto": st.session_state.data['p_texto'],
-                        "p_combinada": st.session_state.data['p_combinada']
-                    }).execute()
-                    
-                    st.success("¡Participante guardado con éxito en la tabla principal!") # <-- Mensaje de prueba
-                    
-                    if res_part.data and len(res_part.data) > 0:
-                        participante_id = res_part.data[0]['id']
-                        contacto_raw = st.session_state.data['contacto']
-                        contacto_cifrado = cipher_suite.encrypt(contacto_raw.encode('utf-8')).decode('utf-8')
+            if asq_1_val is None or asq_2_val is None or asq_3_val is None or asq_4_val is None:
+                st.error("Por favor, completa todas las preguntas obligatorias del cuestionario ASQ.")
+            elif (asq_1_val == "Sí" or asq_2_val == "Sí" or asq_3_val == "Sí" or asq_4_val == "Sí") and asq_5_val is None:
+                st.error("Por favor responde la quinta pregunta del cuestionario ASQ.")
+            else:
+                a1 = 1 if asq_1_val == "Sí" else 0
+                a2 = 1 if asq_2_val == "Sí" else 0
+                a3 = 1 if asq_3_val == "Sí" else 0
+                a4 = 1 if asq_4_val == "Sí" else 0
+                a5 = 1 if asq_5_val == "Sí" else 0
+                
+                tiene_riesgo = (a1 == 1 or a2 == 1 or a3 == 1 or a4 == 1 or a5 == 1)
+                
+                # Puntuación ponderada: 1 punto por cada una de las primeras 4 (máx 4) y 10 puntos si la 5 es Sí. Total máximo = 14.
+                st.session_state.data['asq_puntaje'] = (a1 + a2 + a3 + a4) + (a5 * 10)
+                
+                # Guardar valores individuales de ASQ
+                st.session_state.data['asq_1'] = a1
+                st.session_state.data['asq_2'] = a2
+                st.session_state.data['asq_3'] = a3
+                st.session_state.data['asq_4'] = a4
+                st.session_state.data['asq_5'] = a5
+                
+                st.session_state.data['p_bayes'] = 0.35 if st.session_state.data['antecedente'] == "con-diagnostico" else 0.15
+                st.session_state.data['p_texto'] = 0.0  
+                st.session_state.data['p_combinada'] = st.session_state.data['p_bayes']
+                
+                if supabase:
+                    try:
+                        pregunta_raw = st.session_state.data['pregunta_abierta']
+                        pregunta_cifrada = cipher_suite.encrypt(pregunta_raw.encode('utf-8')).decode('utf-8')
                         
-                        supabase.table("contactos_cifrados").insert({
-                            "participante_id": participante_id,
-                            "contacto_cifrado": contacto_cifrado
-                        }).execute()
-                        st.success("¡Contacto cifrado guardado con éxito!") # <-- Mensaje de prueba
-                except Exception as e:
-                    # ESTO MOSTRARÁ EL ERROR REAL EN PANTALLA
-                    st.error(f"❌ ERROR CRÍTICO EN SUPABASE: {e}")
-                    st.stop() # Detiene la ejecución aquí para que puedas leer el error exacto
-            else:
-                st.error("El cliente de Supabase no está conectado.")
+                        data_insert = {
+                            "edad": st.session_state.data['edad'],
+                            "sexo": st.session_state.data['sexo'],
+                            "escolaridad": st.session_state.data['escolaridad'],
+                            "orientacion": st.session_state.data['orientacion'],
+                            "antecedente": st.session_state.data['antecedente'],
+                            "respuesta_abierta": pregunta_cifrada,
+                            "bdi_puntaje": st.session_state.data['bdi_puntaje'],
+                            "asq_puntaje": st.session_state.data['asq_puntaje'],
+                            "p_bayes": st.session_state.data['p_bayes'],
+                            "p_texto": st.session_state.data['p_texto'],
+                            "p_combinada": st.session_state.data['p_combinada'],
+                            "asq_1": a1,
+                            "asq_2": a2,
+                            "asq_3": a3,
+                            "asq_4": a4,
+                            "asq_5": a5
+                        }
+                        
+                        # Inyectar las 21 respuestas individuales del BDI
+                        bdi_dict = st.session_state.data.get('bdi_respuestas_raw', {})
+                        for idx_bdi, val_bdi in bdi_dict.items():
+                            data_insert[f"bdi_{idx_bdi + 1}"] = val_bdi
+                        
+                        res_part = supabase.table("participantes_estudio").insert(data_insert).execute()
+                        
+                        if res_part.data and len(res_part.data) > 0:
+                            participante_id = res_part.data[0]['id']
+                            contacto_raw = st.session_state.data['contacto']
+                            contacto_cifrado = cipher_suite.encrypt(contacto_raw.encode('utf-8')).decode('utf-8')
+                            
+                            supabase.table("contactos_cifrados").insert({
+                                "participante_id": participante_id,
+                                "contacto_cifrado": contacto_cifrado
+                            }).execute()
+                    except Exception as e:
+                        st.error(f"❌ ERROR CRÍTICO EN SUPABASE: {e}")
+                        st.stop()
+                else:
+                    st.error("El cliente de Supabase no está conectado.")
 
-            # Direccionamiento según el nivel de riesgo o gravedad
-            if tiene_riesgo:
-                st.session_state.asq_triggered = True
-                st.session_state.screen = 10  # Protocolo Suicidio
-            elif st.session_state.data['bdi_puntaje'] >= 29:
-                st.session_state.screen = 9   # Protocolo Depresión Grave
-            else:
-                st.session_state.screen = 8   # Resultados normales
-            st.rerun()
+                if tiene_riesgo:
+                    st.session_state.asq_triggered = True
+                    st.session_state.screen = 10
+                elif st.session_state.data['bdi_puntaje'] >= 29:
+                    st.session_state.screen = 9
+                else:
+                    st.session_state.screen = 8
+                st.rerun()
 # ------------------------------------------
 # PANTALLA 8: RESULTADOS Y RECOMENDACIONES
 # ------------------------------------------
@@ -462,7 +512,7 @@ elif screen == 9:
 # MOSTRAR PUNTAJES AQUí TAMBIÉN
     bdi_val = st.session_state.data.get('bdi_puntaje', 0)
     asq_val = st.session_state.data.get('asq_puntaje', 0)
-    st.warning(f"📋 **Tus puntajes registrados:** BDI-II = {bdi_val} puntos (Nivel Severo) | ASQ = {'Detectado' if asq_val > 0 else 'No se identifica riesgo suicida'}")
+    st.write(f"📋 **Tus puntajes registrados:** BDI-II = {bdi_val} puntos (Nivel Severo) | ASQ = {'Detectado' if asq_val > 0 else 'No se identifica riesgo suicida'}")
     if st.button("Finalizar evaluación"):
         st.session_state.clear()
         st.rerun()
@@ -472,9 +522,9 @@ elif screen == 9:
 # ------------------------------------------
 elif screen == 10:
     st.write("**Protocolo de derivación (riesgo de suicidio)**")
-    nombre_usuario= st.session_state.data.get('nombre', 'participante')
+    nombre_usuario = st.session_state.data.get('nombre', 'participante')
     st.markdown(f"""
-    **{nombre_usuario} si tienes pensamientos de hacerte daño o de quitarte la vida, por favor busca ayuda inmediata. No estás solo.**
+    **{nombre_usuario}, si tienes pensamientos de hacerte daño o de quitarte la vida, por favor busca ayuda inmediata. No estás solo.**
     * Línea de emergencias: Llamar al **911** con servicio las 24 horas. 
     * LOCATEL: Marca al *0311 o al **55 5658 1111** servicio 24 horas.
     * Línea de la Vida: **800 911 2000**. Atención gratuita y confidencial en salud mental, disponible las 24 horas, todos los días. 
@@ -483,10 +533,16 @@ elif screen == 10:
     * SAPTEL: Llamar al **55 5259 8121** servicio 24 horas.
     * LOCATEL CDMX, Línea de Prevención del Suicidio: *0311 o **55 5658 1111**. Atención telefónica y por chat las 24 horas.
     """)
-    # MOSTRAR PUNTAJES AQUí TAMBIÉN
+    
     bdi_val = st.session_state.data.get('bdi_puntaje', 0)
     asq_val = st.session_state.data.get('asq_puntaje', 0)
-    st.warning(f"📋 **Tus puntajes registrados:** BDI-II = {bdi_val} puntos | ASQ = {'Las respuestas proporcionada muestran indicadores de riesgo suicida ' if asq_val > 0 else 'No se identifica riesgo suicida'}")
+    asq_5_registrado = st.session_state.data.get('asq_5', 0)
+    
+    detalle_asq = "Indicadores de ideación o planes suicidas detectados"
+    if asq_5_registrado == 1:
+        detalle_asq += " (con historial de intentos previos)"
+        
+    st.write(f"📋 **Tus puntajes registrados:** BDI-II = {bdi_val} puntos | ASQ = {detalle_asq}")
     if st.button("Finalizar y salir"):
         st.session_state.clear()
         st.rerun()
