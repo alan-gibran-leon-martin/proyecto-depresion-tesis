@@ -178,13 +178,13 @@ Si usted acepta participar, se le solicitará completar un cuestionario que incl
 * Preguntas sociodemográficas (edad, sexo, nivel educativo, ocupación)  
 * Un cuestionario estandarizado sobre síntomas de depresión (Inventario de Depresión de Beck-II).  
 * Un cuestionario breve sobre suicidio (ASQ).  
-La participación es individual y autoadministrada, y tendrá una duración aproximada de 10 a 15 minutos. 
-**Beneficios y retribución**
-Aunque no se obtendrán beneficios económicos directos, su participación contribuirá a la relevancia social de este estudio al impulsar el desarrollo de herramientas tecnológicas accesibles para la detección oportuna de la salud mental en México. Como beneficio directo, al finalizar su participación, el sistema le proporcionará un reporte con información orientativa y datos de contacto actualizados de centros de atención psicológica especializada, incluyendo servicios de la Universidad Nacional Autónoma de México (UNAM). 
+La participación es individual y autoadministrada, y tendrá una duración aproximada de 10 a 15 minutos.   
+**Beneficios y retribución**  
+Aunque no se obtendrán beneficios económicos directos, su participación contribuirá a la relevancia social de este estudio al impulsar el desarrollo de herramientas tecnológicas accesibles para la detección oportuna de la salud mental en México. Como beneficio directo, al finalizar su participación, el sistema le proporcionará un reporte con información orientativa y datos de contacto actualizados de centros de atención psicológica especializada, incluyendo servicios de la Universidad Nacional Autónoma de México (UNAM).  
 **Riesgos**  
-La participación en este estudio implica riesgos mínimos. Algunas preguntas podrían generar incomodidad emocional leve al abordar temas relacionados con el estado de ánimo.  
-En caso de que durante su participación se presente malestar significativo, se recomienda acudir a un profesional de la salud mental. Si requiere atención inmediata, puede contactar a la Línea de la Vida (800 911 2000) o acudir a su unidad de salud más cercana.  
-**Criterios de inclusión y exclusión**
+La participación en este estudio implica riesgos mínimos. Algunas preguntas podrían generar incomodidad emocional leve al abordar temas relacionados con el estado de ánimo.   
+En caso de que durante su participación se presente malestar significativo, se recomienda acudir a un profesional de la salud mental. Si requiere atención inmediata, puede contactar a la Línea de la Vida (800 911 2000) o acudir a su unidad de salud más cercana.   
+**Criterios de inclusión y exclusión**   
 Como criterio de inclusión se requiere ser mayor de 18 años, hablante de español, con habilidad lecto escritora fluida en español, con capacidades intelectuales suficientes para consentir.
 Se excluirán del estudio a aquellos participantes que ya hayan hecho un intento previo y hayan consentido en guardar sus datos, así como las respuestas de aquellos participantes que sean incoherentes.
 Aunque sean excluidos del estudio, pueden recibir atención psicologica gratuita, especializada y confidencial a traves de los siguientes teléfonos:
@@ -195,7 +195,6 @@ Aunque sean excluidos del estudio, pueden recibir atención psicologica gratuita
 * Consejo Ciudadano CDMX: Llamar al 55-5533-5533 servicio 24 horas.
 * SAPTEL: Llamar al 55-5259-8121 servicio 24 horas.
 * LOCATEL CDMX, Línea de Prevención del Suicidio: *0311 o 55 5658 1111. Atención telefónica y por chat las 24 horas.
-
 **Privacidad y manejo de información.**  
 La información proporcionada será tratada de manera confidencial y anónima. No se recopilarán datos que permitan identificar directamente a los participantes (como nombre, domicilio o correo electrónico).  
 Los datos serán almacenados en una base de datos protegida mediante mecanismos de seguridad digital. El acceso a la información estará restringido únicamente al investigador responsable del estudio.  
